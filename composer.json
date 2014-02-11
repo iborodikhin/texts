@@ -1,0 +1,14 @@
+{
+    "name": "iborodikhin/texts",
+    "description": "Some stuff for routine work with text",
+    "authors": [
+        {
+            "name": "Igor Borodikhin",
+            "email": "iborodikhin@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.3.0"
+    }
+}
