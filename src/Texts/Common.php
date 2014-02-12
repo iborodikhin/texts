@@ -17,7 +17,6 @@ class Common
      */
     public static function annotate($title = '', $content = '')
     {
-        $content = strip_tags($content);
         $replaces = array(
             '#'.preg_replace('#\s+#u', '\\s+', $title).'#iu' => '',
             '#\s+#iu'                                        => ' ',
@@ -25,6 +24,7 @@ class Common
             '#<code.*</code>#u'                              => '',
         );
         $content       = preg_replace(array_keys($replaces), array_values($replaces), $content);
+        $content       = strip_tags($content);
         $content_split = preg_replace('#[.!?]\s+([А-ЯA-Z0-9])#u', '<sent>\\1', $content);
         $sentences     = preg_split('#<sent>#iu', $content_split, -1, PREG_SPLIT_NO_EMPTY);
         $title         = ' ' . $title . ' ';
@@ -147,7 +147,7 @@ class Common
      */
     public static function camelize($varName)
     {
-        return preg_replace("#(([^a-z0-9])([a-z0-9]{1}))#iue", "strtoupper($3)", $varName);
+        return preg_replace("#(([^a-z0-9])([a-z0-9]{1}))#iue", "strtoupper('$3')", $varName);
     }
 
     /**
@@ -158,7 +158,7 @@ class Common
      */
     public static function underscorize($varName)
     {
-        return preg_replace("#([A-Z]{1})#ue", "_.strtolower($1)", $varName);
+        return preg_replace("#([A-Z]{1})#ue", "_.strtolower('$1')", $varName);
     }
 
 }
