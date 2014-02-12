@@ -64,7 +64,7 @@ class Common
         $matches = array_flip($matches);
         $match   = '';
 
-        for ($i = 0; $i < max(count($matches, $returnSentances)); $i++) {
+        for ($i = 0; $i < max(count($matches), $returnSentances); $i++) {
             $match .= array_shift($matches);
         }
 
