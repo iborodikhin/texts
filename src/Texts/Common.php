@@ -61,7 +61,7 @@ class Common
 
         arsort($matches);
 
-        $matches = array_flip($matches);
+        $matches = array_filter(array_flip($matches));
         $match   = '';
 
         for ($i = 0; $i < max(count($matches), $returnSentances); $i++) {
