@@ -17,6 +17,7 @@ class Common
      */
     public static function annotate($title = '', $content = '')
     {
+        $content = strip_tags($content);
         $replaces = array(
             '#'.preg_replace('#\s+#u', '\\s+', $title).'#iu' => '',
             '#\s+#iu'                                        => ' ',
@@ -47,7 +48,11 @@ class Common
                 foreach ($sentences as $sentence) {
                     if (!empty($sentence)) {
                         str_ireplace($word, '', $sentence, $idf);
-                        $matches[$sentence] += ($tf)*($idf);
+                        if (!isset($matches[$sentence])) {
+                            $matches[$sentence] = ($tf)*($idf);
+                        } else {
+                            $matches[$sentence] += ($tf)*($idf);
+                        }
                     }
                 }
             }
