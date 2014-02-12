@@ -13,9 +13,10 @@ class Common
      *
      * @param string $title
      * @param string $content
-     * @return mixed
+     * @param integer $returnSentances
+     * @return string
      */
-    public static function annotate($title = '', $content = '')
+    public static function annotate($title = '', $content = '', $returnSentances = 3)
     {
         $replaces = array(
             '#'.preg_replace('#\s+#u', '\\s+', $title).'#iu' => '',
@@ -61,7 +62,12 @@ class Common
         arsort($matches);
 
         $matches = array_flip($matches);
-        $match   = array_shift($matches);
+        $match   = '';
+
+        for ($i = 0; $i < max(count($matches, $returnSentances)); $i++) {
+            $match .= array_shift($matches);
+        }
+
         $match   = preg_replace('#\s+#iu', ' ', $match);
 
         return $match;
