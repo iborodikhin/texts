@@ -65,7 +65,7 @@ class Common
         $match   = '';
 
         for ($i = 0; $i < max(count($matches), $returnSentances); $i++) {
-            $match .= array_shift($matches);
+            $match .= array_shift($matches) . '. ';
         }
 
         $match   = preg_replace('#\s+#iu', ' ', $match);
