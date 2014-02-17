@@ -41,9 +41,9 @@ class Common
         $title   = preg_replace(array_keys($replaces), array_values($replaces), $title);
         $words   = preg_split('#\s+#iu', $title);
         $words   = array_map(array(get_called_class(), 'stemWord'), $words);
-        $words   = array_map(function ($item) use ($stopWords) {
+        $words   = array_filter($words, function ($item) use ($stopWords) {
             return !in_array($item, $stopWords);
-        }, $words);
+        });
         $matches = array();
 
         foreach ($words as $word) {
