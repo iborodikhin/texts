@@ -9,6 +9,13 @@ namespace Texts;
 class Common
 {
     /**
+     * Local cache for stop-words.
+     *
+     * @var array
+     */
+    protected static $stopWords = array();
+
+    /**
      * Create short announce for text with title.
      *
      * @param string $title
@@ -180,16 +187,19 @@ class Common
      */
     protected static function getStopWords($language = 'ru')
     {
-        $dir   = realpath(__DIR__ . '/../../data');
-        $file  = sprintf('%s/stop_%s.dat', $dir, $language);
+        if (!isset(self::$stopWords[$language])) {
+            $dir   = realpath(__DIR__ . '/../../data');
+            $file  = sprintf('%s/stop_%s.dat', $dir, $language);
 
-        if (!is_readable($file)) {
-            throw new \InvalidArgumentException(sprintf("Stop-words for language «%s» not found", $language));
+            if (!is_readable($file)) {
+                throw new \InvalidArgumentException(sprintf("Stop-words for language «%s» not found", $language));
+            }
+
+            $words = file($file);
+            self::$stopWords[$language] = array_map('trim', $words);
         }
 
-        $words = file($file);
-
-        return array_map('trim', $words);
+        return self::$stopWords[$language];
     }
 
 }
