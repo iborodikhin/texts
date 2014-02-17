@@ -24,6 +24,7 @@ class Common
             '#<table.*</table>#u'                            => '',
             '#<code.*</code>#u'                              => '',
         );
+        $stopWords     = self::getStopWords('ru');
         $content       = preg_replace(array_keys($replaces), array_values($replaces), $content);
         $content       = strip_tags($content);
         $content_split = preg_replace('#[.!?]\s+([А-ЯA-Z0-9])#u', '<sent>\\1', $content);
@@ -40,6 +41,9 @@ class Common
         $title   = preg_replace(array_keys($replaces), array_values($replaces), $title);
         $words   = preg_split('#\s+#iu', $title);
         $words   = array_map(array(get_called_class(), 'stemWord'), $words);
+        $words   = array_map(function ($item) use ($stopWords) {
+            return !in_array($item, $stopWords);
+        }, $words);
         $matches = array();
 
         foreach ($words as $word) {
@@ -165,6 +169,27 @@ class Common
     public static function underscorize($varName)
     {
         return preg_replace("#([A-Z]{1})#ue", "_.strtolower('$1')", $varName);
+    }
+
+    /**
+     * Loads stop-words for selected language.
+     *
+     * @param string $language
+     * @return array
+     * @throws \InvalidArgumentException
+     */
+    protected static function getStopWords($language = 'ru')
+    {
+        $dir   = realpath(__DIR__ . '/../../data');
+        $file  = sprintf('%s/stop_%s.dat', $dir, $language);
+
+        if (!is_readable($file)) {
+            throw new \InvalidArgumentException(sprintf("Stop-words for language «%s» not found", $language));
+        }
+
+        $words = file($file);
+
+        return array_map('trim', $words);
     }
 
 }
