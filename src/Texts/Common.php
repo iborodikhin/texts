@@ -34,7 +34,7 @@ class Common
         $stopWords     = self::getStopWords('ru');
         $content       = preg_replace(array_keys($replaces), array_values($replaces), $content);
         $content       = strip_tags($content);
-        $content_split = preg_replace('#[.!?]\s+([А-ЯA-Z0-9])#u', '<sent>\\1', $content);
+        $content_split = preg_replace('#[.!?\s]\s+([А-ЯA-Z0-9])#u', '<sent>\\1', $content);
         $sentences     = preg_split('#<sent>#iu', $content_split, -1, PREG_SPLIT_NO_EMPTY);
         $title         = ' ' . $title . ' ';
 
