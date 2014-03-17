@@ -73,13 +73,29 @@ class Common
         arsort($matches);
 
         $matches = array_filter(array_flip($matches));
-        $match   = '';
+        $matched = array();
 
         for ($i = 0; $i < max(count($matches), $returnSentances); $i++) {
-            $match .= array_shift($matches) . '. ';
+            $matched[] = array_shift($matches);
         }
 
-        $match   = preg_replace('#\s+#iu', ' ', $match);
+        usort($matched, function ($a, $b) use ($content) {
+            $aPos = strpos($content, $a);
+            $bPos = strpos($content, $b);
+
+            if ($aPos === $bPos) {
+                return 0;
+            }
+
+            return ($aPos > $bPos ? 1 : -1);
+        });
+
+        $matched = array_map(function ($item) {
+            return preg_replace('#[.!?]+#u', '.', $item);
+        }, $matched);
+
+        $match = implode(" ", $matched) . "…";
+        $match = preg_replace('#\s+#iu', ' ', $match);
 
         return $match;
     }
