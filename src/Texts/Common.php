@@ -195,6 +195,29 @@ class Common
     }
 
     /**
+     * Transliterates russian string.
+     *
+     * @param  string $text
+     * @return string
+     */
+    public static function transliterate($text)
+    {
+        $uppers = array();
+        $trans  = array(
+            'a' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'yo', 'ж' => 'zh',
+            'з' => 'z', 'и' => 'i' ,'й' => 'y', 'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p',
+            'р' => 'r', 'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'h', 'ц' => 'c', 'ч' => 'ch',
+            'ш' => 'sh', 'щ' => 'sch', 'ь' => '', 'ы' => 'y', 'ъ' => '', 'э' => 'e', 'ю' => 'yu', 'я' => 'ya',
+        );
+
+        foreach ($trans as $ru => $en) {
+            $uppers[mb_strtoupper($ru, 'utf-8')] = ucfirst($en);
+        }
+
+        return strtr($text, array_merge($trans, $uppers));
+    }
+
+    /**
      * Loads stop-words for selected language.
      *
      * @param string $language
