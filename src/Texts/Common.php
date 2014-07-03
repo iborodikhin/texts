@@ -80,8 +80,8 @@ class Common
         }
 
         usort($matched, function ($a, $b) use ($content) {
-            $aPos = strpos($content, $a);
-            $bPos = strpos($content, $b);
+            $aPos = mb_stripos($content, $a, 0, 'utf-8');
+            $bPos = mb_stripos($content, $b, 0, 'utf-8');
 
             if ($aPos === $bPos) {
                 return 0;
@@ -98,6 +98,93 @@ class Common
         $match = preg_replace('#\s+#iu', ' ', $match);
 
         return $match;
+    }
+
+    /**
+     * Get keywords for text.
+     *
+     * @param  string  $title
+     * @param  string  $content
+     * @param  integer $returnWords
+     * @return array
+     */
+    public static function getKeywords($title = '', $content = '', $returnWords = 10)
+    {
+        $replaces = array(
+            '#'.preg_replace('#\s+#u', '\\s+', $title).'#iu' => '',
+            '#\s+#iu'                                        => ' ',
+            '#<table.*</table>#u'                            => '',
+            '#<code.*</code>#u'                              => '',
+        );
+        $stopWords    = self::getStopWords('ru');
+        $cbFilter     = function ($item) use ($stopWords) {
+            return (mb_strlen($item, 'utf-8') > 4 && !in_array(mb_strtolower($item, 'utf-8'), $stopWords));
+        };
+        $cbSort       = function ($a, $b) {
+            if (mb_strlen($a, 'utf-8') > mb_strlen($b, 'utf-8')) return 1;
+            if (mb_strlen($a, 'utf-8') < mb_strlen($b, 'utf-8')) return -1;
+
+            return 0;
+        };
+        $content      = preg_replace(array_keys($replaces), array_values($replaces), $content);
+        $content      = strip_tags($content);
+        $content      = preg_replace('#[^а-яa-z]+#iu', ' ', $content);
+        $title        = preg_replace('#[^а-яa-z]+#iu', ' ', $title);
+        $titleWords   = preg_split('#\s+#u', $title);
+        $titleWords   = array_filter($titleWords, $cbFilter);
+        $titleWords   = array_map(array(get_called_class(), 'stemWord'), $titleWords);
+        $matches      = array();
+
+        foreach ($titleWords as $word) {
+            str_ireplace($word, '', $content, $tf);
+            str_ireplace($word, '', $title, $idf);
+
+            if (!isset($matches[$word])) {
+                $matches[$word] = $tf * $idf;
+            } else {
+                $matches[$word] += $tf * $idf;
+            }
+        }
+        arsort($matches);
+
+        $matchedWords = array();
+
+        foreach ($matches as $word => $weight) {
+            if ($weight > 0) {
+                $matchedWords[] = $word;
+            }
+        }
+
+        $matchedWords = array_slice($matchedWords, 0, min(count($matchedWords), $returnWords));
+        usort($matchedWords, $cbSort);
+
+        $contentWords = preg_split('#\s+#u', $content);
+        $contentWords = array_filter($contentWords, $cbFilter);
+        usort($contentWords, $cbSort);
+
+        $contentWords = array_filter($contentWords, function ($item) use (&$matchedWords) {
+            foreach ($matchedWords as $key => $match) {
+                if (mb_stripos($item, $match, 0, 'utf-8') !== false) {
+                    unset($matchedWords[$key]);
+                    return true;
+                }
+            }
+
+            return false;
+        });
+        $contentWords = array_unique($contentWords);
+        usort($contentWords, function ($a, $b) use ($content) {
+            $aPos = mb_stripos($content, $a, 0, 'utf-8');
+            $bPos = mb_stripos($content, $b, 0, 'utf-8');
+
+            if ($aPos === $bPos) {
+                return 0;
+            }
+
+            return ($aPos > $bPos ? 1 : -1);
+        });
+
+        return array_slice($contentWords, 0, min(count($contentWords), $returnWords));
     }
 
     /**
